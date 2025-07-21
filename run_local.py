@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 class DummyTI:
     """
-    🧩 Simulador de TaskInstance (XCom) | Simulates Airflow TaskInstance (XCom)
+    Simulador de TaskInstance (XCom) | Simulates Airflow TaskInstance (XCom)
 
     Implementa xcom_push e xcom_pull para permitir passagem de dados entre etapas
     durante testes locais do pipeline.

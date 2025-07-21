@@ -1,7 +1,7 @@
-# 📊 Projeto de Engenharia de Dados — Brewery ETL Pipeline
+# Projeto de Engenharia de Dados
 
 Este projeto implementa um pipeline de engenharia de dados baseado na arquitetura Medallion (Bronze → Silver → Gold), utilizando Python, Pandas, Pytest, Docker e Apache Airflow.  
-Ele consome dados públicos da [Open Brewery DB](https://www.openbrewerydb.org), transforma e agrega informações sobre cervejarias dos Estados Unidos.
+Ele consome dados públicos da [Open Brewery DB](https://www.openbrewerydb.org), transforma e agrega informações por estado e tipo de cervejaria nos EUA.
 
 ---
 
@@ -18,13 +18,11 @@ Ele consome dados públicos da [Open Brewery DB](https://www.openbrewerydb.org),
 
 ## 🗂️ Arquitetura do pipeline
 
-O pipeline segue o padrão Medallion:
-
 | Camada   | Descrição                                                |
-|----------|-----------------------------------------------------------|
-| **Bronze** | Dados brutos extraídos da API e salvos em JSON           |
-| **Silver** | Dados transformados e limpos, salvos em formato Parquet  |
-| **Gold**   | Dados agregados por estado e tipo de cervejaria          |
+|----------|----------------------------------------------------------|
+| **Bronze** | Dados brutos extraídos da API e salvos como JSON         |
+| **Silver** | Dados limpos e transformados, salvos em formato Parquet |
+| **Gold**   | Dados agregados por estado e tipo de cervejaria         |
 
 ---
 
@@ -32,11 +30,10 @@ O pipeline segue o padrão Medallion:
 
 ### ✔️ Pré-requisitos
 
-- Docker e Docker Compose instalados
+- Docker e Docker Compose instalados  
+- Um arquivo `.env` na raiz do projeto com suas variáveis
 
 ### ▶️ Execução local (sem Airflow)
-
-Execute o pipeline localmente com:
 
 ```bash
 python run_local.py
@@ -46,7 +43,7 @@ python run_local.py
 
 ## 🧪 Testes unitários
 
-O projeto inclui testes com `pytest` para cada etapa do pipeline ETL:
+Execute os testes com `pytest`:
 
 ```bash
 pytest tests/
@@ -56,13 +53,13 @@ pytest tests/
 
 ## 📊 Cobertura de testes
 
-Para validar a cobertura de código:
+Verifique cobertura com:
 
 ```bash
 pytest --cov=etl tests/
 ```
 
-Para gerar um relatório visual em HTML:
+Gere um relatório visual em HTML:
 
 ```bash
 pytest --cov=etl --cov-report=html tests/
@@ -73,19 +70,41 @@ start htmlcov/index.html
 
 ## 📧 Notificações por e-mail (opcional)
 
-O pipeline possui uma task opcional que envia um e-mail ao final da execução da DAG utilizando o `EmailOperator` do Airflow.
+A DAG possui uma tarefa opcional que envia e-mail após a execução, usando o `EmailOperator` do Airflow.
 
-⚠️ Essa funcionalidade está desabilitada por padrão para evitar dependência de configuração SMTP.
+⚠️ Desabilitada por padrão para evitar dependência de SMTP.
 
 ### Como ativar
 
-- Configure as credenciais SMTP no arquivo `airflow.cfg` (host, porta, usuário, senha)  
-- Descomente a task `notify_success` no arquivo `brewery_dag.py`  
-- Preencha o e-mail destinatário no campo `to`  
-- Encadeie ao final da DAG: `task_aggregate >> notify_success`
+- Configure SMTP no `airflow.cfg` (host, porta, usuário e senha)  
+- Descomente a task `notify_success` em `brewery_dag.py`  
+- Defina o e-mail de destino no campo `to`  
+- Encadeie a tarefa: `task_aggregate >> notify_success`
 
-🔐 **Importante**: Nunca exponha suas credenciais diretamente no repositório público.  
-Utilize variáveis de ambiente ou conexões via Airflow.
+🔐 **Importante:** Nunca exponha credenciais no repositório.  
+Utilize variáveis de ambiente ou conexões seguras do Airflow.
+
+---
+
+## 🐳 Setup com Docker
+
+Para iniciar o Airflow com Docker:
+
+```bash
+docker-compose up
+```
+
+Crie um arquivo `.env` na raiz contendo:
+
+```dotenv
+POSTGRES_USER=airflow
+POSTGRES_PASSWORD=sua_senha_segura
+POSTGRES_DB=airflow
+AIRFLOW_SECRET_KEY=sua_chave_aleatoria
+AIRFLOW_DB_URL=postgresql+psycopg2://airflow:sua_senha_segura@postgres/airflow
+```
+
+📌 Não versionar o `.env` no GitHub.
 
 ---
 
@@ -104,6 +123,8 @@ brewery-pipeline/
 ├── run_local.py
 ├── validate.py
 ├── brewery_dag.py
+├── docker-compose.yml
+├── .env (não incluído)
 ├── README.md
 └── README_pt-br.md
 ```
@@ -112,7 +133,7 @@ brewery-pipeline/
 
 ## 🧹 Limpeza de arquivos temporários
 
-Para remover arquivos auxiliares e caches gerados durante testes ou execução local:
+Para remover caches e arquivos auxiliares após testes:
 
 ```bash
 make clean
@@ -123,7 +144,7 @@ make clean
 ## 👨‍💻 Autor
 
 Projeto desenvolvido por **Diego Rafael**.  
-Fique à vontade para entrar em contato via [LinkedIn](https://www.linkedin.com/in/diego-rafael-1057221a0/) ou sugerir melhorias por *pull request*!
+Fique à vontade para entrar em contato pelo [LinkedIn](https://www.linkedin.com/in/diego-rafael-1057221a0/) ou sugerir melhorias via *pull request*!
 
 ---
 
@@ -131,3 +152,5 @@ Fique à vontade para entrar em contato via [LinkedIn](https://www.linkedin.com/
 
 Este projeto é destinado exclusivamente a fins educacionais e técnicos.  
 Os dados utilizados são públicos e fornecidos pela Open Brewery DB.
+
+Licenciado sob a [MIT License](LICENSE).

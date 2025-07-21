@@ -1,25 +1,27 @@
 version: '3.7'
+
 services:
   postgres:
     image: postgres:13
-    environment:
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
-      - POSTGRES_DB=airflow
+    restart: always
+    env_file:
+      - .env
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
+    networks:
+      - airflow_net
 
   webserver:
     image: apache/airflow:2.9.1
     restart: always
     depends_on:
       - postgres
+    env_file:
+      - .env
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - AIRFLOW__WEBSERVER__SECRET_KEY=mysecretkey
-      - _AIRFLOW_WWW_USER_USERNAME=airflow
-      - _AIRFLOW_WWW_USER_PASSWORD=airflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${AIRFLOW_DB_URL}
+      - AIRFLOW__WEBSERVER__SECRET_KEY=${AIRFLOW_SECRET_KEY}
       - PYTHONPATH=/opt/airflow
     volumes:
       - ./etl:/opt/airflow/etl
@@ -29,6 +31,8 @@ services:
     ports:
       - "8080:8080"
     command: webserver
+    networks:
+      - airflow_net
 
   scheduler:
     image: apache/airflow:2.9.1
@@ -36,9 +40,11 @@ services:
     depends_on:
       - webserver
       - postgres
+    env_file:
+      - .env
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${AIRFLOW_DB_URL}
       - PYTHONPATH=/opt/airflow
     volumes:
       - ./etl:/opt/airflow/etl
@@ -46,6 +52,12 @@ services:
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
     command: scheduler
+    networks:
+      - airflow_net
 
 volumes:
   postgres-db-volume:
+
+networks:
+  airflow_net:
+    driver: bridge
