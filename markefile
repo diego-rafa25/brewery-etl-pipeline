@@ -1,0 +1,14 @@
+.PHONY: run test coverage clean
+
+run:
+	python run_local.py
+
+test:
+	pytest tests/
+
+coverage:
+	pytest --cov=etl --cov-report=html tests/
+	start htmlcov/index.html
+
+clean:
+	rm -rf __pycache__/ .pytest_cache/ htmlcov/ .coverage

@@ -1,0 +1,18 @@
+#  Pastas de cache do Python
+__pycache__/
+*.pyc
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs temporários
+logs/
+
+# Arquivos de ambiente ou build
+.env
+*.stackdump
+
+# Arquivos auxiliares ou duplicados
+README copy.md
